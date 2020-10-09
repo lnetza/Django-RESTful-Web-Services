@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     #Rest framework
     'rest_framework',
-    #App juguete
+    #Aplicación juguete
     'toys.apps.ToysConfig',
 ]
 
