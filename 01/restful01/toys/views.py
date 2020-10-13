@@ -20,37 +20,50 @@ class JSONResponse(HttpResponse):
         super(JSONResponse, self).__init__(content,**kwargs)
 
 #garantizar que la vista establezca una cookie CSRF (abreviatura de Cross-Site Request Forgery).
+#many true= De esta forma, Django es capaz de serializar una lista de objetos
 @csrf_exempt
 def toy_list(request):
     if request.method == 'GET':
+        #si get Serialización
         toys = Toy.objects.all()
         toys_serializer = ToySerializer(toys, many=True)
         return JSONResponse(toys_serializer.data)
     
     elif request.method == 'POST':
+        #Si POST Deserealizacion de request
         toy_data = JSONParser().parse(request)
         toy_serializer = ToySerializer(data=toy_data)
+        
         if toy_serializer.is_valid():
+            #Se guarda en la BDD
             toy_serializer.save()
+            #Retorna JSONResponse con los datos guardados y 201 status
             return JSONResponse(toy_serializer.data,
                 status=status.HTTP_201_CREATED)
-        return JSONResponse(toy_serializer.errors,
-            status=status.HTTP_400_BAD_REQUEST)
+        return JSONResponse(toy_serializer.errors,status=status.HTTP_400_BAD_REQUEST)
 
+#Función para recuperar, actualizar o eliminar un juguete
 @csrf_exempt
 def toy_detail(request,pk):
     try:
+        #Obtenemos el juguete con la pk igual al parametro pk
         toy = Toy.objects.get(pk=pk)
     except Toy.DoesNotExist:
+        #Si no exite, retorna 404
         return HttpResponse(status=status.HTTP_404_NOT_FOUND)
     
     if request.method == 'GET':
+        #Se serializa el juguete buscado y devuelve un JSONResponse con el status 200 HTTP
         toy_serializer = ToySerializer(toy)
         return JSONResponse(toy_serializer.data)
     
     elif request.method == 'PUT':
+        #Si el verbo en el request es PUT, se deserealiza el JSON contenida en el request con JSONParser y el analizador .parse(request) 
         toy_data = JSONParser().parse(request)
+        #Se crea una instancia del serializador con parametros Toy y data=al JSON contenida en el request, 
+        # que reemplazara la info del juguete especificado con pk
         toy_serializer = ToySerializer(toy, data=toy_data)
+        #Se valida si la instancia de toy es valida con .is_valid()
         if toy_serializer.is_valid():
             toy_serializer.save()
             return JSONResponse(toy_serializer.data)
