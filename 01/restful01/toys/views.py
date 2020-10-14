@@ -16,8 +16,8 @@ from toys.serializers import ToySerializer
 class JSONResponse(HttpResponse):
     def __init__(self, data, **kwargs):
         content = JSONRenderer().render(data)
-        kwargs['content_type']='application/json'
-        super(JSONResponse, self).__init__(content,**kwargs)
+        kwargs['content_type'] = 'application/json'
+        super(JSONResponse, self).__init__(content, **kwargs)
 
 #garantizar que la vista establezca una cookie CSRF (abreviatura de Cross-Site Request Forgery).
 #many true= De esta forma, Django es capaz de serializar una lista de objetos
@@ -66,9 +66,13 @@ def toy_detail(request,pk):
         #Se valida si la instancia de toy es valida con .is_valid()
         if toy_serializer.is_valid():
             toy_serializer.save()
+            #Retorna los datos serializados
             return JSONResponse(toy_serializer.data)
+        #Si los datos analizados en la request no generan una instancia valida de Toy, retorna 400
         return JSONResponse(toy_serializer.errors,status=status.HTTP_400_BAD_REQUEST)
     
     elif request.method == 'DELETE':
+        #Si el método es delete, se recupera la instancia de TOY y se elimina
         toy.delete()
+        #una vez elimininado se devuelve 204 es decir sin contenido
         return HttpResponse(status=status.HTTP_204_NO_CONTENT)
