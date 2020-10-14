@@ -30,7 +30,7 @@ def toy_list(request):
         return JSONResponse(toys_serializer.data)
     
     elif request.method == 'POST':
-        #Si POST Deserealizacion de request
+        #Si POST Deserealizacion de request analizando la request con parse()
         toy_data = JSONParser().parse(request)
         toy_serializer = ToySerializer(data=toy_data)
         
@@ -60,7 +60,7 @@ def toy_detail(request,pk):
     elif request.method == 'PUT':
         #Si el verbo en el request es PUT, se deserealiza el JSON contenida en el request con JSONParser y el analizador .parse(request) 
         toy_data = JSONParser().parse(request)
-        #Se crea una instancia del serializador con parametros Toy y data=al JSON contenida en el request, 
+        #Se crea una instancia del serializador con parametros Toy y data=el JSON contenida en el request, 
         # que reemplazara la info del juguete especificado con pk
         toy_serializer = ToySerializer(toy, data=toy_data)
         #Se valida si la instancia de toy es valida con .is_valid()
