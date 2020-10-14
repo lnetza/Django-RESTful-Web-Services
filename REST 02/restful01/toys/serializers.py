@@ -1,21 +1,24 @@
 from rest_framework import serializers
 from toys.models import Toy
 
+#La clase ModelSerializer completa automáticamente un conjunto 
+# de campos predeterminados y validadores predeterminados recuperando
+#  metadatos de la clase de modelo relacionada que debemos especificar. 
+# Además, la clase ModelSerializer proporciona implementaciones 
+# predeterminadas para los métodos de creación y actualización. 
+# En este caso, aprovecharemos estas implementaciones predeterminadas 
+# porque serán adecuadas para proporcionar nuestros métodos de creación y 
+# actualización necesarios.
+# En resumen ModelSerializer nos ahorra lineas de código cosa que no sucede
+# con Serializer
 
-class ToySerializer(serializers.Serializer):
-    pk = serializers.IntegerField(read_only=True)
-    name = serializers.CharField(max_length=150)
-    description = serializers.CharField(max_length=250)
-    toy_category = serializers.CharField(max_length=200)
-    was_included_in_home = serializers.BooleanField(required=False)
-    
-    def create(self, validated_data):
-        return Toy.objects.create(**validated_data)
-
-    def update(self, instance, validated_data):
-        instance.name = validated_data.get('name', instance.name)
-        instance.description = validated_data.get('description', instance.description)
-        instance.toy_category = validated_data.get('toy_category', instance.toy_category)
-        instance.was_included_in_home = validated_data.get('was_included_in_home', instance.was_included_in_home)
-        instance.save()
-        return instance
+class ToySerializer(serializers.ModelSerializer):
+    class Meta:
+        #Especificamos el modelo Toy
+        model = Toy
+        #Se especifican en una Tupla los campos a serializar
+        fields = ('id',
+                  'name',
+                  'description',
+                  'toy_category',
+                  'was_included_in_home')
