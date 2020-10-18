@@ -1,78 +1,74 @@
 from django.shortcuts import render
-from django.http import HttpResponse
-from django.views.decorators.csrf import csrf_exempt
-from rest_framework.renderers import JSONRenderer
-from rest_framework.parsers import JSONParser
 from rest_framework import status
 from toys.models import Toy
 from toys.serializers import ToySerializer
-#La clase JSONResponse es una subclase de la clase django.http.HttpResponse. 
-# La superclase django.http.HttpResponse representa una respuesta HTTP con contenido de cadena.
-#La clase simplemente declara el método __init__ que crea una instancia rest_framework.renderers.JSONRenderer
-#  y llama a su método render para representar los datos recibidos en JSON y guardar la cadena de bytes devuelta
-#  en la variable local de contenido.
-#Luego, el código agrega la clave 'content_type' al encabezado de respuesta con 'application / json' como su valor. 
-# Finalmente, el código llama al inicializador para la clase base con la cadena de bytes JSON y el par clave-valor agregado al encabezado.
-class JSONResponse(HttpResponse):
-    def __init__(self, data, **kwargs):
-        content = JSONRenderer().render(data)
-        kwargs['content_type'] = 'application/json'
-        super(JSONResponse, self).__init__(content, **kwargs)
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
 
-#garantizar que la vista establezca una cookie CSRF (abreviatura de Cross-Site Request Forgery).
-#many true= De esta forma, Django es capaz de serializar una lista de objetos
-@csrf_exempt
+#El decorador @api_view nos permite especificar cuáles son los verbos HTTP que puede procesar 
+# la función a la que se aplica. Si la solicitud que se ha enrutado a la función de vista tiene 
+# un verbo HTTP que no está incluido en la lista de cadenas especificada como el argumento 
+# http_method_names (ejemplo: http PATCH :8000/toys/) para el decorador @api_view, 
+# el comportamiento predeterminado devuelve una respuesta con un código de estado HTTP 405 Método no permitido
+# al usar @api_view ya traé configurado lo sigiente
+#('rest_framework.parsers.JSONParser', 'rest_framework.parsers.FormParser', 'rest_framework.parsers.MultiPartParser') y viene
+#especificado en DEFAULT_PARSER_CLASSES
+#Cuando usamos el decorador @api_view, el servicio web RESTful podrá manejar cualquiera de los siguientes 
+# tipos de contenido a través de los analizadores apropiados es decir:
+#application/json: es parseado por rest_framework.parsers.JSONParser class
+#application/x-www-form-urlencoded:es parseado por rest_framework.parsers.FormParser class
+#multipart/form-data: es parseado por rest_framework.parsers.MultiPartParser class
+
+
+@api_view(['GET','POST'])
 def toy_list(request):
     if request.method == 'GET':
         #si get Serialización
         toys = Toy.objects.all()
         toys_serializer = ToySerializer(toys, many=True)
-        return JSONResponse(toys_serializer.data)
+        return Response(toys_serializer.data)
     
     elif request.method == 'POST':
-        #Si POST Deserealizacion de request analizando la request con parse()
-        toy_data = JSONParser().parse(request)
-        toy_serializer = ToySerializer(data=toy_data)
+        #Se crea una instancia del serializador que recibe como parametro el request HTTP de tipo POST
+        toy_serializer = ToySerializer(data=request.data)
         
         if toy_serializer.is_valid():
             #Se guarda en la BDD
             toy_serializer.save()
-            #Retorna JSONResponse con los datos guardados y 201 status
-            return JSONResponse(toy_serializer.data,
+            #Retorna Response con los datos guardados y 201 status
+            return Response(toy_serializer.data,
                 status=status.HTTP_201_CREATED)
-        return JSONResponse(toy_serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+        return Response(toy_serializer.errors,status=status.HTTP_400_BAD_REQUEST)
 
 #Función para recuperar, actualizar o eliminar un juguete
-@csrf_exempt
+@api_view(['GET','PUT','DELETE'])
 def toy_detail(request,pk):
     try:
         #Obtenemos el juguete con la pk igual al parametro pk
         toy = Toy.objects.get(pk=pk)
     except Toy.DoesNotExist:
         #Si no exite, retorna 404
-        return HttpResponse(status=status.HTTP_404_NOT_FOUND)
+        return Response(status=status.HTTP_404_NOT_FOUND)
     
     if request.method == 'GET':
         #Se serializa el juguete buscado y devuelve un JSONResponse con el status 200 HTTP
         toy_serializer = ToySerializer(toy)
-        return JSONResponse(toy_serializer.data)
+        return Response(toy_serializer.data)
     
     elif request.method == 'PUT':
-        #Si el verbo en el request es PUT, se deserealiza el JSON contenida en el request con JSONParser y el analizador .parse(request) 
-        toy_data = JSONParser().parse(request)
-        #Se crea una instancia del serializador con parametros Toy y data=el JSON contenida en el request, 
-        # que reemplazara la info del juguete especificado con pk
-        toy_serializer = ToySerializer(toy, data=toy_data)
+        # la siguiente línea única que pasa toy como primer argumento y request.data como argumento de datos para crear
+        #  una nueva instancia de ToySerializer:
+        toy_serializer = ToySerializer(toy, data=request.data)
         #Se valida si la instancia de toy es valida con .is_valid()
         if toy_serializer.is_valid():
             toy_serializer.save()
             #Retorna los datos serializados
-            return JSONResponse(toy_serializer.data)
+            return Response(toy_serializer.data)
         #Si los datos analizados en la request no generan una instancia valida de Toy, retorna 400
-        return JSONResponse(toy_serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+        return Response(toy_serializer.errors,status=status.HTTP_400_BAD_REQUEST)
     
     elif request.method == 'DELETE':
         #Si el método es delete, se recupera la instancia de TOY y se elimina
         toy.delete()
         #una vez elimininado se devuelve 204 es decir sin contenido
-        return HttpResponse(status=status.HTTP_204_NO_CONTENT)
+        return Response(status=status.HTTP_204_NO_CONTENT)
