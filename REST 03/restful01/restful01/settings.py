@@ -106,7 +106,15 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
-
+#Paginador 
+#Es una buena práctica configurar un límite máximo para evitar generar respuestas con grandes cantidades de datos que puedan generar cargas importantes al servidor que ejecuta el Servicio Web RESTful.
+#De esta manera, todas las vistas genéricas usarán la clase drones.custompagination.LimitOffsetPaginationWithUpperBound 
+#Si el valor especificado para el parámetro de consulta límite es mayor que 8, se utiliza el valor máximo de 8, en lugar del valor que se indique en la solicitud
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS':  
+    'drones.custompagination.LimitOffsetPaginationWithUpperBound',   
+    'PAGE_SIZE': 4 
+}
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.0/topics/i18n/
