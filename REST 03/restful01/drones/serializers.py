@@ -4,6 +4,50 @@ from drones.models import Drone
 from drones.models import Pilot
 from drones.models import Competition
 import drones.views
+from django.contrib.auth.models import User 
+
+#No queremos usar la clase de serializador DroneSerializer para los drones
+#relacionados con un usuario porque queremos serializar menos campos y, por 
+#lo tanto, creamos la clase UserDroneSerializer. Esta clase es una subclase
+#de la clase HyperlinkedModelSerializer. Este nuevo serializador nos permite 
+#serializar los drones relacionados con un Usuario. La clase UserDroneSerializer
+#define una clase interna Meta que declara los dos atributos siguientes:
+
+#modelo: Este atributo especifica el modelo relacionado con el serializador, es decir, la clase Drone.
+
+#fields: este atributo especifica una tupla de cadena cuyos valores indican los
+#  nombres de campo que queremos incluir en la serialización del modelo relacionado. 
+# Solo queremos incluir la URL y el nombre del dron y, por lo tanto, el código incluye 
+# 'url' y 'nombre' como miembros de la tupla.
+
+class UserDroneSerializer(serializers.HyperlinkedModelSerializer):     
+    class Meta:
+        model = Drone        
+        fields = (          
+            'url', 
+            'name')   
+
+#UserSerializer es una subclase de la clase HyperlinkedModelSerializer. 
+#Esta nueva clase de serializador declara un atributo de drones como una
+#instancia de la clase UserDroneSerializer explicada anteriormente, con
+#los argumentos many y read_only iguales a True porque es una relación de
+#uno a muchos y es de solo lectura. El código especifica el nombre de los
+#drones que especificamos como el valor de cadena para el argumento 
+#related_name cuando agregamos el campo propietario como una instancia 
+#de model.ForeignKey en el modelo de Drone. De esta manera, el campo de 
+#drones nos proporcionará una serie de URL y nombres para cada dron que pertenece al usuario.
+class UserSerializer(serializers.HyperlinkedModelSerializer): 
+    drones = UserDroneSerializer(
+        many=True,
+        read_only=True)
+
+    class Meta:
+        model = User    
+        fields = (  
+            'url',
+            'pk', 
+            'username', 
+            'drone')
 
 #La clase DroneCategorySerializer es una subclase de la clase HyperlinkedModelSerializer.
 #La clase DroneCategorySerializer declara un atributo de drones que contiene una instancia
@@ -42,6 +86,20 @@ class DroneSerializer(serializers.HyperlinkedModelSerializer):
     # por lo tanto, especificamos 'nombre' como el valor para el argumento slug_field.
     drone_category = serializers.SlugRelatedField(queryset=DroneCategory.objects.all(), slug_field='name')
 
+    #Ahora, agregaremos un campo propietario a la clase DroneSerializer existente.
+    #Mostrar el nombre de usuario del propietario (solo lectura)
+
+    #La nueva versión de la clase DroneSerializer declara un atributo de propietario como una instancia de serializadores.ReadOnlyField con 
+    #el argumento de origen igual a 'owner.username'. De esta manera, el serializador serializará el valor para el campo de nombre de usuario 
+    #de la instancia relacionada django.contrib.auth.User almacenada en el campo propietario.
+    
+    #El código usa la clase ReadOnlyField porque el propietario se completa automáticamente cuando un usuario autenticado crea un nuevo dron.
+    #Será imposible cambiar el propietario después de que se haya creado un dron con una llamada al método HTTP POST. De esta manera, el campo 
+    #del propietario mostrará el nombre de usuario que creó el dron relacionado. Además, agregamos 'propietario' a la tupla de cadenas de campos
+    #dentro de la clase interna Meta.
+    #Hicimos los cambios necesarios en el modelo de Drone y su serializador (la clase DroneSerializer) para que los drones tengan propietarios.
+    owner = serializers.ReadOnlyField(source='owner.username')
+
     class Meta:
         #Modelo Drone
         model = Drone
@@ -51,6 +109,7 @@ class DroneSerializer(serializers.HyperlinkedModelSerializer):
             'url',
             'name', 
             'drone_category',
+            'owner',
             'manufacturing_date', 
             'has_it_competed', 
             'inserted_timestamp')

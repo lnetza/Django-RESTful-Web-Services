@@ -21,8 +21,13 @@ class Drone(models.Model):
         on_delete=models.CASCADE) 
     manufacturing_date = models.DateTimeField() 
     has_it_competed = models.BooleanField(default=False) 
-    inserted_timestamp = models.DateTimeField(auto_now_add=True) 
- 
+    inserted_timestamp = models.DateTimeField(auto_now_add=True)
+    # Capitulo de seguridad y permisos se agrega owner 
+    owner = models.ForeignKey( 
+        'auth.User',  
+        related_name='drones', 
+        on_delete=models.CASCADE)
+
     class Meta: 
         ordering = ('name',) 
  

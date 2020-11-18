@@ -41,6 +41,9 @@ INSTALLED_APPS = [
     'rest_framework',
     #App drones
     'drones.apps.DronesConfig',
+    #Filter
+    'django_filters',
+
 ]
 
 MIDDLEWARE = [
@@ -110,10 +113,40 @@ AUTH_PASSWORD_VALIDATORS = [
 #Es una buena práctica configurar un límite máximo para evitar generar respuestas con grandes cantidades de datos que puedan generar cargas importantes al servidor que ejecuta el Servicio Web RESTful.
 #De esta manera, todas las vistas genéricas usarán la clase drones.custompagination.LimitOffsetPaginationWithUpperBound 
 #Si el valor especificado para el parámetro de consulta límite es mayor que 8, se utiliza el valor máximo de 8, en lugar del valor que se indique en la solicitud
+
+#rest_framework.filters.OrderingFilter: 
+#Esta clase permite al cliente controlar cómo se ordenan los resultados con un único parámetro de consulta. Podemos especificar qué campos se pueden ordenar.
+
+#django_filters.rest_framework.DjangoFilterBackend: 
+#esta clase proporciona capacidades de filtrado de campos. Podemos especificar el conjunto de campos contra los que queremos poder filtrar, y el backend del filtro definido 
+#en el paquete django-filter creará una nueva clase django_filters.rest_framework.FilterSet y la asociará a la vista basada en clases. También es posible crear nuestra 
+#propia clase rest_framework.filters.FilterSet, con configuraciones más personalizadas, y escribir nuestro propio código para asociarlo con la vista basada en clases.
+
+#rest_framework.filters.SearchFilter: 
+#esta clase proporciona capacidades de búsqueda basadas en parámetros de consulta única, y su comportamiento se basa en la función de búsqueda del administrador de Django. 
+#Podemos especificar el conjunto de campos que queremos incluir para la función de búsqueda y el cliente podrá filtrar elementos realizando consultas que busquen en estos 
+#campos con una única consulta. Es útil cuando queremos hacer posible que una solicitud busque en varios campos con una sola consulta.
+
+#BasicAuthentication: esta clase proporciona una autenticación básica HTTP con un nombre de usuario y una contraseña.
+
+#SessionAuthentication: esta clase funciona con el marco de sesión de Django para la autenticación.
+
+#TokenAuthentication: esta clase proporciona una autenticación simple basada en token. 
+#La solicitud debe incluir el token generado para un usuario como el valor de la clave de encabezado HTTP de 
+#autorización con la cadena 'Token' como prefijo del token.
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS':  
     'drones.custompagination.LimitOffsetPaginationWithUpperBound',   
-    'PAGE_SIZE': 4 
+    'PAGE_SIZE': 4,
+    'DEFAULT_FILTER_BACKENDS': (        
+        'django_filters.rest_framework.DjangoFilterBackend',        
+        'rest_framework.filters.OrderingFilter',      
+        'rest_framework.filters.SearchFilter',     
+        ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (        
+        'rest_framework.authentication.BasicAuthentication',         
+        'rest_framework.authentication.SessionAuthentication',         
+        ) 
 }
 
 # Internationalization
