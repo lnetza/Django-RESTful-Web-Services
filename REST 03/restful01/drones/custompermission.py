@@ -28,6 +28,9 @@ from rest_framework import permissions
 #  el acceso de solo lectura a los recursos cuando la solicitud no pertenece 
 # a un usuario autenticado. De esta forma, siempre que un usuario anónimo realice 
 # una solicitud, solo tendrá acceso de solo lectura a los recursos.
+#La tupla de cadena permissions.SAFE_METHODS incluye los siguientes métodos 
+# HTTP o verbos que se consideran seguros:'GET', 'HEAD' y 'OPTIONS'
+
 class IsCurrentUserOwnerOrReadOnly(permissions.BasePermission):     
     def has_object_permission(self, request, view, obj): 
         if request.method in permissions.SAFE_METHODS:  
