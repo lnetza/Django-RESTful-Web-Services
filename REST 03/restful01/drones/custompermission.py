@@ -31,7 +31,8 @@ from rest_framework import permissions
 class IsCurrentUserOwnerOrReadOnly(permissions.BasePermission):     
     def has_object_permission(self, request, view, obj): 
         if request.method in permissions.SAFE_METHODS:  
-           # The method is a safe method             
+           # The method is a safe method   
+           # Message "detail": "You do not have permission to perform this action."   
            return True        
         else:           
             # El método no es un método seguro   
