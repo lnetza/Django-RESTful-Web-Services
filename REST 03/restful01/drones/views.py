@@ -7,6 +7,8 @@ from drones.models import Drone
 from drones.models import Pilot 
 from drones.models import Competition 
 from drones.serializers import DroneCategorySerializer 
+from rest_framework import permissions 
+from drones import custompermission 
 from drones.serializers import DroneSerializer 
 from drones.serializers import PilotSerializer 
 from drones.serializers import PilotCompetitionSerializer 
@@ -74,12 +76,36 @@ class DroneList(generics.ListCreateAPIView):
     ordering_fields = (       
         'name',         
         'manufacturing_date',        
-        ) 
- 
+        )
+    #Establecer políticas de permisos
+    permission_classes = (
+        permissions.IsAuthenticatedOrReadOnly,
+        custompermission.IsCurrentUserOwnerOrReadOnly,
+    )
+
+#Capitulo - Guardar información sobre los usuarios que realizan solicitudes
+#La clase generics.ListCreateAPIView hereda de la clase CreateModelMixin 
+#y otras clases. La clase DroneList hereda el método perform_create de 
+#la clase rest_framework.mixins.CreateModelMixin   
+# El código que anula el método perform_create proporciona un campo 
+# propietario adicional al método create estableciendo un valor para 
+# el argumento propietario en la llamada al método serializer.save.
+# El código establece el argumento propietario en el valor de 
+# self.request.user, es decir, en el usuario autenticado que realiza la solicitud.
+# De esta manera, siempre que se cree y persista un nuevo Drone, 
+# guardará al Usuario asociado a la solicitud como su propietario.     
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
+
 class DroneDetail(generics.RetrieveUpdateDestroyAPIView): 
     queryset = Drone.objects.all() 
     serializer_class = DroneSerializer 
-    name = 'drone-detail' 
+    name = 'drone-detail'
+    #Establecer políticas de permisos
+    permission_classes =(
+        permissions.IsAuthenticatedOrReadOnly,
+        custompermission.IsCurrentUserOwnerOrReadOnly,
+    ) 
  
  
 class PilotList(generics.ListCreateAPIView): 
