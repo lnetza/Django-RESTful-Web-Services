@@ -43,6 +43,8 @@ INSTALLED_APPS = [
     'drones.apps.DronesConfig',
     #Filter
     'django_filters',
+    # Token authentication     
+    'rest_framework.authtoken',
 
 ]
 

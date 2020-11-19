@@ -6,7 +6,10 @@ from drones.models import DroneCategory
 from drones.models import Drone 
 from drones.models import Pilot 
 from drones.models import Competition 
-from drones.serializers import DroneCategorySerializer 
+from drones.serializers import DroneCategorySerializer
+#token-based authentication
+from rest_framework.permissions import IsAuthenticated 
+from rest_framework.authentication import TokenAuthentication 
 from rest_framework import permissions 
 from drones import custompermission 
 from drones.serializers import DroneSerializer 
@@ -124,12 +127,30 @@ class PilotList(generics.ListCreateAPIView):
         'name',         
         'races_count'        
         )
+    #Token Autenticated 
+    # We will configure authentication and permission policies for the 
+    # class-based views that work with the Pilot model. We will override
+    # the values for the authentication_classes and permission_classes
+    # class attributes for the PilotDetail and PilotList classes.   
+    authentication_classes = (  
+        TokenAuthentication,  
+        )  
+    permission_classes = (   
+        IsAuthenticated,   
+        )
  
  
 class PilotDetail(generics.RetrieveUpdateDestroyAPIView): 
     queryset = Pilot.objects.all() 
     serializer_class = PilotSerializer 
     name = 'pilot-detail' 
+    #Token Authenticated
+    authentication_classes = (       
+        TokenAuthentication,  
+        )    
+    permission_classes = (    
+        IsAuthenticated, 
+        )
  
 #from_achievement_date: este atributo es una instancia de django_filters.DateTimeFilter 
 #que permite que la solicitud filtre las competiciones cuyo valor de DateTime de logro_date
