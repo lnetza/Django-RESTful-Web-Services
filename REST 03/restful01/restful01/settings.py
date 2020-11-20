@@ -145,10 +145,76 @@ REST_FRAMEWORK = {
         'rest_framework.filters.OrderingFilter',      
         'rest_framework.filters.SearchFilter',     
         ),
+    #clases que queremos usar para la autenticación
     'DEFAULT_AUTHENTICATION_CLASSES': (        
         'rest_framework.authentication.BasicAuthentication',         
         'rest_framework.authentication.SessionAuthentication',         
-        ) 
+    ),
+    #Limites de solicitud x hora
+
+    #El marco Django REST proporciona tres clases de aceleración en el módulo 
+    # rest_framework.throttling. Todos ellos son subclases de la clase 
+    # SimpleRateThrottle que hereda de la clase BaseThrottle.
+
+    #Las tres clases nos permiten especificar reglas de estrangulamiento 
+    # que indican el número máximo de solicitudes en un período de tiempo 
+    # específico y dentro de un alcance determinado. Cada clase es responsable 
+    #de calcular y validar el número máximo de solicitudes por período.
+    #Las clases proporcionan diferentes mecanismos para determinar la 
+    #información de la solicitud anterior para especificar el alcance 
+    #comparándola con la nueva solicitud. El marco Django REST almacena
+    #los datos necesarios para analizar cada regla de limitación en el caché.
+    #Por lo tanto, las clases anulan el método get_cache_key heredado que determina 
+    # el alcance que se utilizará para calcular y validar
+
+    #AnonRateThrottle: Esta clase limita la tasa de solicitudes que puede realizar un 
+    # usuario anónimo y, por lo tanto, sus reglas se aplican a usuarios no autenticados. 
+    #La clave de caché única es la dirección IP de la solicitud entrante. Por lo tanto,
+    #todas las solicitudes originadas en la misma dirección IP acumularán el número total
+    #de solicitudes para esta IP.
+
+    #UserRateThrottle: Esta clase limita la tasa de solicitudes que puede realizar un usuario específico y
+    #se aplica tanto a usuarios autenticados como no autenticados. Obviamente, cuando las
+    #solicitudes se autentican, el ID de usuario autenticado es la clave de caché única.
+    #Cuando las solicitudes no están autenticadas y provienen de usuarios anónimos, la clave
+    #de caché única es la dirección IP de la solicitud entrante.
+
+    #ScopedRateThrottle: Esta clase es útil siempre que tengamos que restringir el acceso a funciones 
+    #específicas de nuestro Servicio Web RESTful con diferentes tarifas. La clase utiliza el valor 
+    #asignado al atributo throttle_scope para limitar las solicitudes a las partes identificadas con el mismo valor.
+    'DEFAULT_THROTTLE_CLASSES': ( 
+        'rest_framework.throttling.AnonRateThrottle', 
+        'rest_framework.throttling.UserRateThrottle', 
+    ), 
+    #La clave de configuración DEFAULT_THROTTLE_RATES especifica un diccionario con las tasas de aceleración predeterminadas. 
+    #'anon': especificaremos '3 / hora' como valor para esta clave, lo que significa que queremos un 
+    #máximo de 3 solicitudes por hora para usuarios anónimos. La clase AnonRateThrottle aplicará esta regla de limitación.
+    
+    #'user': especificaremos '10 / hora 'como valor para esta clave, lo que significa que queremos un máximo de 10 solicitudes 
+    #por hora para los usuarios autenticados. La clase UserRateThrottle aplicará esta regla de limitación.
+    
+    #'drones': especificaremos '20 / hour 'como el valor de esta clave, lo que significa que queremos un máximo de 
+    #20 solicitudes por hora para las vistas relacionadas con drones. La clase ScopedRateThrottle aplicará esta regla de limitación.
+    
+    #'pilotos': especificaremos '15 / hora 'como el valor para esta clave, lo que significa que queremos un máximo de 15 solicitudes 
+    #por hora para las vistas relacionadas con los drones. La clase ScopedRateThrottle aplicará esta regla de limitación.
+    
+    #El valor de la tasa máxima para cada clave es una cadena que especifica el número de solicitudes por período con el siguiente formato: 
+    
+    #d: day
+    #day: day
+    #h: hour
+    #hour: hour
+    #m: minute
+    #min: minute
+    #s: second
+    #sec: second
+    'DEFAULT_THROTTLE_RATES': { 
+        'anon': '3/hour', 
+        'user': '10/hour', 
+        'drones': '20/hour', 
+        'pilots': '15/hour', 
+    }
 }
 
 # Internationalization

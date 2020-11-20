@@ -15,6 +15,8 @@ from drones import custompermission
 from drones.serializers import DroneSerializer 
 from drones.serializers import PilotSerializer 
 from drones.serializers import PilotCompetitionSerializer 
+#Limitaciones
+from rest_framework.throttling import ScopedRateThrottle 
 #Para los filters
 
 from django_filters import FilterSet, AllValuesFilter, DateTimeFilter, NumberFilter 
@@ -62,8 +64,19 @@ class DroneCategoryDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = DroneCategorySerializer 
     name = 'dronecategory-detail' 
  
- 
+#throttle_classes: este atributo de clase especifica una tupla
+#con los nombres de las clases que administrarán las reglas de
+#limitación de la clase. En este caso, especificaremos la clase
+#ScopedRateThrottle como el único miembro de la tupla.
+
+#throttle_scope: este atributo de clase especifica el nombre del 
+#alcance del limitador que la clase ScopedRateThrottle usará 
+#para acumular el número de solicitudes y limitar la tasa de solicitudes.
 class DroneList(generics.ListCreateAPIView): 
+    #limitacioiones, drones se configuro en settingspy DEFAULT_THROTTLE_RATES
+    throttle_scope = 'drones' 
+    throttle_classes = (ScopedRateThrottle,)
+
     queryset = Drone.objects.all() 
     serializer_class = DroneSerializer 
     name = 'drone-list' 
@@ -100,7 +113,10 @@ class DroneList(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
 
-class DroneDetail(generics.RetrieveUpdateDestroyAPIView): 
+class DroneDetail(generics.RetrieveUpdateDestroyAPIView):
+    #
+    throttle_scope = 'drones'
+    throttle_classes = (ScopedRateThrottle)
     queryset = Drone.objects.all() 
     serializer_class = DroneSerializer 
     name = 'drone-detail'
@@ -111,7 +127,9 @@ class DroneDetail(generics.RetrieveUpdateDestroyAPIView):
     ) 
  
  
-class PilotList(generics.ListCreateAPIView): 
+class PilotList(generics.ListCreateAPIView):
+    throttle_scope = 'pilots'    
+    throttle_classes = (ScopedRateThrottle,)
     queryset = Pilot.objects.all() 
     serializer_class = PilotSerializer 
     name = 'pilot-list'
@@ -135,12 +153,15 @@ class PilotList(generics.ListCreateAPIView):
     authentication_classes = (  
         TokenAuthentication,  
         )  
+    #configurar políticas de permisos para una vista basada en clases
     permission_classes = (   
         IsAuthenticated,   
         )
  
  
 class PilotDetail(generics.RetrieveUpdateDestroyAPIView): 
+    throttle_scope = 'pilots'
+    throttle_classes = (ScopedRateThrottle,)
     queryset = Pilot.objects.all() 
     serializer_class = PilotSerializer 
     name = 'pilot-detail' 
