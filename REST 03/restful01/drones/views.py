@@ -116,7 +116,7 @@ class DroneList(generics.ListCreateAPIView):
 class DroneDetail(generics.RetrieveUpdateDestroyAPIView):
     #
     throttle_scope = 'drones'
-    throttle_classes = (ScopedRateThrottle)
+    throttle_classes = (ScopedRateThrottle,)
     queryset = Drone.objects.all() 
     serializer_class = DroneSerializer 
     name = 'drone-detail'

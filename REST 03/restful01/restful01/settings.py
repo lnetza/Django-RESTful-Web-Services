@@ -210,6 +210,7 @@ REST_FRAMEWORK = {
     #s: second
     #sec: second
     'DEFAULT_THROTTLE_RATES': { 
+        #anon usuarios anonimos 3 por hora
         'anon': '3/hour', 
         'user': '10/hour', 
         'drones': '20/hour', 
