@@ -215,7 +215,13 @@ REST_FRAMEWORK = {
         'user': '10/hour', 
         'drones': '20/hour', 
         'pilots': '15/hour', 
-    }
+    },
+    #para configurar la clase de control de versiones predeterminada que queremos usar.
+    #Como sucedió siempre que agregamos valores para las claves de configuración, la nueva 
+    #configuración se aplicará a todas las vistas como una configuración global
+    'DEFAULT_VERSIONING_CLASS': 
+        'rest_framework.versioning.NamespaceVersioning',
+    
 }
 
 # Internationalization
