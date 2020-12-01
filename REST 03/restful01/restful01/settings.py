@@ -211,10 +211,10 @@ REST_FRAMEWORK = {
     #sec: second
     'DEFAULT_THROTTLE_RATES': { 
         #anon usuarios anonimos 3 por hora
-        'anon': '3/hour', 
-        'user': '10/hour', 
-        'drones': '20/hour', 
-        'pilots': '15/hour', 
+        'anon': '300/hour', 
+        'user': '100/hour', 
+        'drones': '200/hour', 
+        'pilots': '150/hour', 
     },
     #para configurar la clase de control de versiones predeterminada que queremos usar.
     #Como sucedió siempre que agregamos valores para las claves de configuración, la nueva 

@@ -24,10 +24,13 @@ urlpatterns = [
     #path('admin/', admin.site.urls),
     #url(r'^', include('drones.urls')),
     #url(r'^api-auth/', include('rest_framework.urls')),
+    
     #Versiones de API V1 y V2
-    url(r'^v1/', include(('drones.urls','v1'), namespace='v1')),     
-    url(r'^v1/api-auth/', include(('rest_framework.urls','rest_framework_v1'), namespace='rest_framework_v1')),     
-    url(r'^v2/', include(('drones.v2.urls','v2'), namespace='v2')),     
-    url(r'^v2/api-auth/', include(('rest_framework.urls','rest_framework_v2'), namespace='rest_framework_v2')),
+    #url(r'^v1/', include(('drones.urls','v1'), namespace='v1')),     
+    #url(r'^v1/api-auth/', include(('rest_framework.urls','rest_framework_v1'), namespace='rest_framework_v1')),     
+    #url(r'^v2/', include(('drones.v2.urls','v2'), namespace='v2')),     
+    #url(r'^v2/api-auth/', include(('rest_framework.urls','rest_framework_v2'), namespace='rest_framework_v2')),
+    url(r'^', include('drones.urls')),     
+    url(r'^api-auth/', include('rest_framework.urls'))
 
 ]
