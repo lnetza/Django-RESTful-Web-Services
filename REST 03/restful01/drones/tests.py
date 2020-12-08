@@ -1,6 +1,6 @@
 from django.test import TestCase
 from django.utils.http import urlencode 
-from django.core.urlresolvers import reverse 
+from django.urls import reverse 
 from rest_framework import status 
 from rest_framework.test import APITestCase 
 from drones.models import DroneCategory 
@@ -82,8 +82,7 @@ class DroneCategoryTests(APITestCase):
         assert response.status_code == status.HTTP_200_OK 
         # Se asegura de recibir solo un elemento en la respuesta
         assert response.data['count'] == 1 
-        assert response.data['results'][0]['name'] == 
-        drone_category_name1
+        assert response.data['results'][0]['name'] == drone_category_name1
     
 #El método prueba si podemos recuperar la colección de categorías de drones. Primero, el código crea una nueva categoría 
 #de drones y luego realiza una solicitud HTTP GET para recuperar la colección de drones. Las líneas que llaman a assert 
@@ -121,3 +120,26 @@ class DroneCategoryTests(APITestCase):
         patch_response = self.client.patch(url, data, format='json') 
         assert patch_response.status_code == status.HTTP_200_OK 
         assert patch_response.data['name'] == updated_drone_category_name
+
+#El nuevo método prueba si podemos recuperar una sola categoría con una solicitud HTTP GET. Primero, el código crea una nueva categoría 
+#de drones y luego realiza una solicitud HTTP GET para recuperar la categoría de drones previamente persistente. Las líneas que llaman 
+#a assert comprueban que el código de estado devuelto sea HTTP 200 OK y que el valor de la clave del nombre en el cuerpo de la respuesta 
+#sea igual al nombre que especificamos en la solicitud HTTP POST que creó la categoría de dron.
+    def test_get_drone_category(self): 
+        """ 
+        Ensure we can get a single drone category by id 
+        """ 
+        drone_category_name = 'Easy to retrieve' 
+        response = self.post_drone_category(drone_category_name) 
+        url = reverse( 
+            views.DroneCategoryDetail.name,  
+            None,  
+            {response.data['pk']}) 
+        get_response = self.client.get(url, format='json') 
+        assert get_response.status_code == status.HTTP_200_OK 
+        assert get_response.data['name'] == drone_category_name
+
+#Cada método de prueba que requiera una condición específica en la base de datos debe ejecutar todo el código necesario para generar los datos requeridos. 
+#Por ejemplo, para actualizar el nombre de una categoría de drones existente, era necesario crear una nueva categoría de drones antes de realizar la 
+#solicitud HTTP PATCH para actualizarla. Pytest y el marco REST de Django ejecutarán cada método de prueba sin datos de los métodos de prueba ejecutados 
+#previamente en la base de datos, es decir, cada prueba se ejecutará con una base de datos limpia de datos de las pruebas anteriores
