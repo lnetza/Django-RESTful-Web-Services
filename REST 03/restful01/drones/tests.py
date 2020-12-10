@@ -33,8 +33,9 @@ class DroneCategoryTests(APITestCase):
         Asegúrese de que podamos crear una nueva categoría de drones y luego recuperarla        
         """         
         new_drone_category_name = 'Hexacopter'         
-        response = self.post_drone_category(new_drone_category_name)         
-        print("PK {0}".format(DroneCategory.objects.get().pk))         
+        response = self.post_drone_category(new_drone_category_name)
+        #n para salto de linea
+        print("\nPK {0}\n".format(DroneCategory.objects.get().pk))         
         assert response.status_code == status.HTTP_201_CREATED         
         assert DroneCategory.objects.count() == 1         
         assert DroneCategory.objects.get().name == new_drone_category_name
@@ -143,3 +144,14 @@ class DroneCategoryTests(APITestCase):
 #Por ejemplo, para actualizar el nombre de una categoría de drones existente, era necesario crear una nueva categoría de drones antes de realizar la 
 #solicitud HTTP PATCH para actualizarla. Pytest y el marco REST de Django ejecutarán cada método de prueba sin datos de los métodos de prueba ejecutados 
 #previamente en la base de datos, es decir, cada prueba se ejecutará con una base de datos limpia de datos de las pruebas anteriores
+
+
+#Se ejecutan las pruebas con el comando: pytest
+#El comando pytest y el marco Django REST realizarán las siguientes acciones:
+#1 Cree un nombre de base de datos de prueba limpio test_drones.
+#2 Ejecute todas las migraciones necesarias para la base de datos.
+#3 Descubra las pruebas que deben ejecutarse en función de la configuración especificada en el archivo pytest.ini.
+#4 Ejecute todos los métodos cuyo nombre comience con el prefijo test_ en la clase DroneCategoryTests y muestre los resultados. Declaramos esta clase en el archivo tests.py y coincide con el patrón especificado para la configuración python_files en el archivo pytest.ini.
+#5 Elimine la base de datos de prueba denominada test_drones.
+
+#Comando pytest -v para ver el nombre de las pruebas que pasarón
